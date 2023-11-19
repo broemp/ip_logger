@@ -13,6 +13,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
@@ -34,14 +38,5 @@ jobs:
       - name: Create Docker Buildx builder
         run: docker buildx create --use
 
-      - name: Build Docker image for AMD64
-        run: docker buildx build --platform linux/amd64 -t broemp/ip_logger:latest .
-
-      - name: Push Docker image for AMD64 to Docker Hub
-        run: docker buildx build --platform linux/amd64 --push -t broemp/ip_logger:latest .
-
-      - name: Build Docker image for ARM
-        run: docker buildx build --platform linux/arm/v7 -t broemp/ip_logger:latest .
-
-      - name: Push Docker image for ARM to Docker Hub
-        run: docker buildx build --platform linux/arm/v7 --push -t broemp/ip_logger:latest .
+      - name: Push Docker image
+        run: docker buildx build --platform linux/amd64,linux/arm64 -t broemp:latest -t broemp:v-${{ steps.date.outputs.date }} .
