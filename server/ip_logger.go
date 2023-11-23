@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 )
 
 const CLIENT_NUM = 3
@@ -59,7 +60,7 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 			w.Write([]byte(err.Error()))
 			return
 		}
-		err := storeIP(r.FormValue("id"), r.FormValue("ip"))
+		err := storeIP(r.FormValue("id"), r.RemoteAddr)
 		if err != nil {
 			w.Write([]byte(err.Error()))
 			return
@@ -71,6 +72,7 @@ func handleRequest(w http.ResponseWriter, r *http.Request) {
 }
 
 func storeIP(id string, ip string) error {
+	ip_array := strings.Split(ip, ":")
 	id_num, err := strconv.Atoi(id)
 	if err != nil {
 		return err
@@ -78,7 +80,7 @@ func storeIP(id string, ip string) error {
 	if id_num >= CLIENT_NUM {
 		return errors.New("id outside of client range")
 	}
-	ips[id_num] = ip
+	ips[id_num] = ip_array[0]
 	return nil
 }
 
